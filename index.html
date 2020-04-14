@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Covid19 - Status</title>
+  </head>
+  <body>
+    <canvas id="chart" width="800" height="400"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script type="module">
+      // import data from './data.js';
+      import { getTotalCasesByDate } from './util.js';
+
+      function totalCasesChart(data, ctx) {
+        const { confirmed, deaths, recovered } = data;
+        const chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: confirmed.map((item) =>
+              new Intl.DateTimeFormat('es-CO', {
+                month: 'long',
+                day: 'numeric',
+              }).format(new Date(item.date))
+            ),
+            datasets: [
+              {
+                label: 'Muertes',
+                borderColor: 'red',
+                data: deaths.map((item) => item.cases),
+              },
+              {
+                label: 'Recuperados',
+                borderColor: 'green',
+                data: recovered.map((item) => item.cases),
+              },
+              {
+                label: 'Confirmados',
+                borderColor: 'orange',
+                data: confirmed.map((item) => item.cases),
+              },
+            ],
+          },
+          options: {
+            scales: {
+              xAxes: [
+                {
+                  gridLines: {
+                    display: false,
+                  },
+                },
+              ],
+            },
+            title: {
+              display: true,
+              text: 'Casos desde el primer reporte Covid19',
+              fontSize: 24,
+              padding: 24,
+              fontColor: '#12619c',
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                boxWidth: 15,
+                fontFamily: 'system-ui',
+                fontColor: 'black',
+              },
+            },
+            layout: {
+              padding: {
+                right: 50,
+              },
+            },
+            tooltips: {
+              backgroundColor: '#0584f6',
+              titleFontSize: 18,
+              xPadding: 14,
+              yPadding: 14,
+              bodyFontSize: 14,
+              bodySpacing: 14,
+              mode: 'x',
+            },
+            elements: {
+              line: {
+                borderWidth: 8,
+                fill: false,
+              },
+              point: {
+                radius: 6,
+                borderWidth: 6,
+                backgroundColor: 'white',
+                hoverRadius: 8,
+                hoverBorderWidth: 4,
+              },
+            },
+          },
+        });
+      }
+
+      async function renderCharts() {
+        const ctx = document.querySelector('#chart').getContext('2d');
+        const data = await getTotalCasesByDate();
+        totalCasesChart(data, ctx);
+      }
+      renderCharts();
+    </script>
+  </body>
+</html>
